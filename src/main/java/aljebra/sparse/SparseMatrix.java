@@ -382,7 +382,7 @@ public class SparseMatrix implements Serializable, Cloneable {
 			newRowData[i] = newColData[j] = value;
 		}
 		
-		System.arraycopy(rowInd, j, newRowInd, j + delta,  nnz - j - delta);
+		System.arraycopy(rowInd, j, newRowInd, j + delta, nnz - j - delta);
 		System.arraycopy(colInd, i, newColInd, i + delta, nnz - i - delta);
 		System.arraycopy(rowData, i, newRowData, i + delta, nnz - i - delta);
 		System.arraycopy(colData, j, newColData, j + delta, nnz - j - delta);

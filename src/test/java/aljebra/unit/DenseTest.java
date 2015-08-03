@@ -18,13 +18,15 @@
  *******************************************************************************/
 package aljebra.unit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import aljebra.dense.DenseMatrix;
 import aljebra.dense.DenseVector;
+import aljebra.lapack.SVD;
 
 public class DenseTest {
 
@@ -106,6 +108,9 @@ public class DenseTest {
 		assertEquals(m1.trace(), m1trace, 1e-6);
 		assertEquals(m1.norm(1), m1norm1, 1e-6);
 		assertTrue(m1.dot(m1.transpose()).equals(DenseMatrix.AtA(m1)));
+		
+		SVD svd = m1.svd();
+		assertTrue(m1.equals(svd.getU().dot(svd.getS().dot(svd.getV().transpose()))));
 		
 		v1.add(0, 16);
 		assertEquals(v1.get(0), 17, 1e-6);

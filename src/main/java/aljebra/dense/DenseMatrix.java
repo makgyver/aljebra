@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
+import aljebra.lapack.SVD;
 import aljebra.sparse.SparseMatrix;
 import aljebra.utils.Misc;
 import aljebra.utils.RNG;
@@ -656,12 +657,28 @@ public class DenseMatrix implements Cloneable, Serializable {
 	}
 	
 	/**
+	 * <p>Performs the singular value decomposition of the matrix.</p>
+	 * For more information about SVD see the 
+	 * <a href="https://en.wikipedia.org/wiki/Singular_value_decomposition">wikipedia page</a>.
+	 * 
+	 * @return the SVD decomposition object
+	 */
+	public SVD svd() {
+		SVD svd = new SVD(this);
+		return svd;
+	}
+	
+	/**
 	 * Converts the matrix to a bi-dimensional vector of doubles.
 	 * 
 	 * @return the bi-dimensional vector representation of the matrix
 	 */
 	public double[][] toArray() {
-		return data.clone();
+		double[][] array = new double[rows][cols];
+		for (int i = 0; i < rows; ++i) {
+			array[i] = data[i].clone();
+		}
+		return array;
 	}
 	
 	@Override

@@ -78,7 +78,7 @@ public class SVD implements Serializable {
 	 * 
 	 * @param matrix	a rectangular matrix.
 	 */
-	public SVD(DenseMatrix matrix) {
+	public SVD(final DenseMatrix matrix) {
 		assert(matrix.rows() >= matrix.cols());
 		
 		// Derived from LINPACK code.

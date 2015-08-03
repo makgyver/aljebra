@@ -95,6 +95,7 @@ public class SparseTest {
 		
 		assertTrue(neg.equals(v1.opposite()));
 		assertTrue(v1.equals(v1.clone()));
+		assertTrue(v1.equals(new SparseVector(v1)));
 		assertTrue(sum.equals(v1.add(v2)));
 		assertTrue(diff.equals(v1.sub(v2)));
 		assertEquals(vecDot, v1.dot(v2), 1e-6);
@@ -112,6 +113,7 @@ public class SparseTest {
 		
 		assertTrue(mNeg.equals(m1.opposite()));
 		assertTrue(m1.equals(m1.clone()));
+		assertTrue(m1.equals(new SparseMatrix(m1)));
 		assertTrue(m1.isSquare());
 		assertTrue(!m3.isSquare());
 		assertTrue(m1Diag.equals(m1.diag()));

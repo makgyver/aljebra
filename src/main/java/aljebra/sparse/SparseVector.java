@@ -157,10 +157,10 @@ public class SparseVector implements Serializable, Cloneable {
 		this.size = vec.size;
 		this.data = new double[size];
 		this.ids = new int[size];
-		for (int i = 0; i < size; ++i) {
-			this.data[i] = vec.data[i];
-			this.ids[i] = vec.ids[i];
-		}
+
+		System.arraycopy(vec.data, 0, data, 0, size);
+		System.arraycopy(vec.ids, 0, ids, 0, size);
+		
 		this.count = vec.count;
 	}
 	
