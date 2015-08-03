@@ -25,6 +25,7 @@ import java.util.Arrays;
 import aljebra.dense.DenseMatrix;
 import aljebra.dense.DenseVector;
 import aljebra.utils.Misc;
+import aljebra.utils.RNG;
 
 /**
  * <p>Sparse implementation of a matrix.</p>
@@ -46,7 +47,149 @@ public class SparseMatrix implements Serializable, Cloneable {
 	// STATIC SECTION
 	//
 	
-	// TODO: some static utility methods
+	/**
+	 * Constructs a new zero matrix with dimension 
+	 * {@code rows} x {@code cols}.
+	 * 
+	 * @param rows	number of rows
+	 * @param cols	number of columns
+	 * @return a new sparse null matrix
+	 */
+	public static SparseMatrix zero(int rows, int cols) {
+		return new SparseMatrix(rows, cols, true);
+	}
+	
+	/**
+	 * <p>Constructs a new matrix with all entries set to one,
+	 * with dimension {@code rows} x {@code cols}.</p>
+	 * 
+	 * <strong>NOTE: using a sparse implementation with a non-sparse matrix
+	 * is not as efficient as using a dense implementation. See {@link DenseMatrix}.</strong>
+	 * 
+	 * @param rows	number of rows
+	 * @param cols	number of columns
+	 * @return a new one matrix
+	 */
+	public static SparseMatrix one(int rows, int cols) {
+		SparseMatrix one = new SparseMatrix(rows, cols, false);
+		int size = rows * cols;
+		
+		one.rowPtr = new int[rows + 1];
+		one.colInd = new int[size];
+		one.rowData = new double[size];
+
+		one.colPtr = new int[cols + 1];
+		one.rowInd = new int[size];
+		one.colData = new double[size];
+		
+		one.rowPtr[0] = one.colPtr[0] = 0;
+		for (int i = 0; i < rows; ++i) {
+			one.rowPtr[i + 1] = (i + 1) * cols;
+			for (int j = 0; j < cols; ++j) {
+				int k = i * cols + j;
+				one.colInd[k] = j;
+				one.rowData[k] = 1.0;
+			}
+		}
+		
+		for (int j = 0; j < cols; ++j) {
+			one.colPtr[j + 1] = (j + 1) * rows;
+			for (int i = 0; i < rows; ++i) {
+				int k = j * rows + i;
+				one.rowInd[k] = i;
+				one.colData[k] = 1.0;
+			}
+		}
+		return one;
+	}
+	
+	/**
+	 * <p>Constructs a new sparse matrix initialized with random
+	 * double values in the range [0,1].</p>
+	 * 
+	 * <strong>NOTE: using a sparse implementation with a non-sparse matrix
+	 * is not as efficient as using a dense implementation. See {@link DenseMatrix}.</strong>
+	 * 
+	 * @param rows	number of rows
+	 * @param cols	number of columns
+	 * @return a new sparse matrix.
+	 */
+	public static SparseMatrix rand(int rows, int cols) {
+		int[] r = new int[rows * cols];
+		int[] c = new int[rows * cols];
+		double[] v = new double[rows * cols];
+		for (int i = 0; i < rows * cols; ++i) {
+			for (int j = 0; j < cols; ++j) {
+				int k = i * cols + j;
+				double val = RNG.uniformDbl();
+				r[k] = i;
+				c[k] = j;
+				v[k] = val;
+			}
+		}
+		clean(r, c, v);
+		return new SparseMatrix(r, c, v);
+	}
+	
+	/**
+	 * Constructs an identity matrix with dimension 
+	 * {@code n} x {@code n}.
+	 * 
+	 * @param n	 number of rows and column
+	 * @return a new identity matrix
+	 */
+	public static SparseMatrix identity(int n) {
+		SparseMatrix eye = new SparseMatrix(n, n, false);
+		
+		eye.rowPtr = new int[n + 1];
+		eye.colInd = new int[n];
+		eye.rowData = new double[n];
+
+		eye.colPtr = new int[n + 1];
+		eye.rowInd = new int[n];
+		eye.colData = new double[n];
+		
+		eye.rowPtr[0] = eye.colPtr[0] = 0;
+		for (int i = 0; i < n; ++i) {
+			eye.rowPtr[i + 1] = eye.colPtr[i + 1] = i;
+			eye.rowInd[i] = eye.colInd[i] = i;
+			eye.rowData[i] = eye.colData[i] = 1.0;
+		}
+		return eye;
+	}
+	
+	// Clean up the vectors: remove the entry corresponding to zero values.
+	private static void clean(int[] r, int[] c, double[] v) {
+		assert (r.length == c.length && 
+				r.length == v.length);
+				
+		ArrayList<Integer> skip = new ArrayList<Integer>();
+		for (int i = 0; i < v.length; ++i) {
+			if (v[i] == 0.0) {
+				skip.add(i);
+			}
+		}
+		
+		if (skip.size() > 0) {
+			int size = r.length - skip.size();
+			
+			int[] newr = new int[size];
+			int[] newc = new int[size];
+			double[] newv = new double[size];
+			
+			for (int i = 0, j = 0; j < skip.size(); ++j) {
+				for (int k = i + j; k < skip.get(j); ++k, ++i) {
+					newr[i] = r[k];
+					newc[i] = c[k];
+					newv[i] = v[k];
+				}
+			}
+			
+			r = newr;
+			c = newc;
+			v = newv;
+		}
+	}
 	
 	//
 	// END STATIC SECTION
@@ -63,7 +206,7 @@ public class SparseMatrix implements Serializable, Cloneable {
 	protected double[] rowData;
 	protected int[] rowPtr, colInd;
 
-	// Compressed Col Storage (CCS)
+	// Compressed Column Storage (CCS)
 	protected double[] colData;
 	protected int[] colPtr, rowInd;
 	
@@ -122,39 +265,6 @@ public class SparseMatrix implements Serializable, Cloneable {
 		this.cols = ncols;
 		
 		init(rows, cols, values);
-	}
-	
-	// Clean up the vectors: remove the entry corresponding to zero values.
-	private void clean(int[] r, int[] c, double[] v) {
-		assert (r.length == c.length && 
-				r.length == v.length);
-				
-		ArrayList<Integer> skip = new ArrayList<Integer>();
-		for (int i = 0; i < v.length; ++i) {
-			if (v[i] == 0.0) {
-				skip.add(i);
-			}
-		}
-		
-		if (skip.size() > 0) {
-			int size = r.length - skip.size();
-			
-			int[] newr = new int[size];
-			int[] newc = new int[size];
-			double[] newv = new double[size];
-			
-			for (int i = 0, j = 0; j < skip.size(); ++j) {
-				for (int k = i + j; k < skip.get(j); ++k, ++i) {
-					newr[i] = r[k];
-					newc[i] = c[k];
-					newv[i] = v[k];
-				}
-			}
-			
-			r = newr;
-			c = newc;
-			v = newv;
-		}
 	}
 	
 	// Initializes the structures used to construct the sparse matrix
@@ -749,14 +859,22 @@ public class SparseMatrix implements Serializable, Cloneable {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Dimension: ").append(rows).append(" x ").append(cols).append("\n");
-
+		sb.append("[");
 		for (int i = 0; i < rows; i++) {
+			if (i == 0) {
+				sb.append("[");
+			} else {
+				sb.append(" [");
+			}
 			for (int j = 0; j < cols; j++) {
 				sb.append(get(i, j));
 				if (j < cols - 1) {
 					sb.append("\t");
 				}
+			}
+			sb.append("]");
+			if (i == rows - 1) {
+				sb.append("]");
 			}
 			sb.append("\n");
 		}

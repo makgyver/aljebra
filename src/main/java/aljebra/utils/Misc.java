@@ -29,7 +29,7 @@ public class Misc {
 
 	// Hides the default constructor.
 	private Misc() {}
-	
+
 	/**
 	 * Returns the max value in the given array of integers.
 	 * 
@@ -38,7 +38,7 @@ public class Misc {
 	 */
 	public static int max(int[] array) {
 		assert(array.length > 0);
-		
+
 		int m = array[0];
 		for (int i = 1; i < array.length; ++i) {
 			if (array[i] > m) {
@@ -47,7 +47,7 @@ public class Misc {
 		}
 		return m;
 	}
-	
+
 	/**
 	 * Sorts (using Quicksort) the {@code inputArray} and consequently reorders the {@code compInt} and {@code compDbl}
 	 * arrays (if not null).
@@ -61,7 +61,7 @@ public class Misc {
 	public static void sort(int start, int end, int[] inputArr, int[] compInt, double[] compDbl) {
 		new QuickSort().sort(start, end, inputArr, compInt, compDbl);
 	}
-	
+
 	/**
 	 * Sorts (using Quicksort) the {@code inputArray} and consequently reorders the {@code compInt} and {@code compDbl}
 	 * arrays (if not null).
@@ -71,9 +71,9 @@ public class Misc {
 	 * @param compDbl	the companion array of doubles
 	 */
 	public static void sort(int[] inputArr, int[] compInt, double[] compDbl) {
-        sort(0, inputArr.length - 1, inputArr, compInt, compDbl);
-    }
-	
+		sort(0, inputArr.length - 1, inputArr, compInt, compDbl);
+	}
+
 	/**
 	 * Returns true whether {@code d1} is in the neighborhood, of radius
 	 * 1e-6 of {@code d2}. 
@@ -107,72 +107,72 @@ public class Misc {
 		}
 		return r;
 	}
-	
+
 	/**
 	 * QuickSort support class.
 	 */
 	private static class QuickSort {
-	     
-	    private int[] array;
-	    private int[] companionInt;
-	    private double[] companionDbl;
-	 
-	    public void sort(int start, int end, int[] inputArr, int[] compInt, double[] compDbl) {
-	        assert(start >= 0 && start < inputArr.length && end < inputArr.length); 
-	    	
-	        if (inputArr == null || inputArr.length == 0) {
-	            return;
-	        }
-	        
-	        this.array = inputArr;
-	        this.companionInt = compInt;
-	        this.companionDbl = compDbl;
-	        
-	        quickSort(start, end);
-	    }
-	    
-	    private void quickSort(int lowerIndex, int higherIndex) {
-	         
-	        int i = lowerIndex;
-	        int j = higherIndex;
-	        int pivot = array[lowerIndex + (higherIndex - lowerIndex) / 2];
 
-	        while (i <= j) {
-	        	while (array[i] < pivot) ++i;
-	        	while (array[j] > pivot) --j;
-	        	
-	            if (i <= j) {
-	                exchangeNumbers(i, j);
-	                ++i;
-	                --j;
-	            }
-	        }
+		private int[] array;
+		private int[] companionInt;
+		private double[] companionDbl;
 
-	        if (lowerIndex < j) {
-	            quickSort(lowerIndex, j);
-	        }
-	        
-	        if (i < higherIndex) {
-	            quickSort(i, higherIndex);
-	        }
-	    }
-	 
-	    private void exchangeNumbers(int i, int j) {
-	        int temp = array[i];
-	        array[i] = array[j];
-	        array[j] = temp;
-	        
-	        if (companionInt != null) {
-	        	temp = companionInt[i];
-	        	companionInt[i] = companionInt[j];
-	        	companionInt[j] = temp;
-	        }
-	        
-	        if (companionDbl != null) {
-	        	double tempd = companionDbl[i];
-	        	companionDbl[i] = companionDbl[j];
-		        companionDbl[j] = tempd;
-	        }
-	    }
+		public void sort(int start, int end, int[] inputArr, int[] compInt, double[] compDbl) {
+			assert(start >= 0 && start < inputArr.length && end < inputArr.length); 
+
+			if (inputArr == null || inputArr.length == 0) {
+				return;
+			}
+
+			this.array = inputArr;
+			this.companionInt = compInt;
+			this.companionDbl = compDbl;
+
+			quickSort(start, end);
+		}
+
+		private void quickSort(int lowerIndex, int higherIndex) {
+
+			int i = lowerIndex;
+			int j = higherIndex;
+			int pivot = array[lowerIndex + (higherIndex - lowerIndex) / 2];
+
+			while (i <= j) {
+				while (array[i] < pivot) ++i;
+				while (array[j] > pivot) --j;
+
+				if (i <= j) {
+					exchangeNumbers(i, j);
+					++i;
+					--j;
+				}
+			}
+
+			if (lowerIndex < j) {
+				quickSort(lowerIndex, j);
+			}
+
+			if (i < higherIndex) {
+				quickSort(i, higherIndex);
+			}
+		}
+
+		private void exchangeNumbers(int i, int j) {
+			int temp = array[i];
+			array[i] = array[j];
+			array[j] = temp;
+
+			if (companionInt != null) {
+				temp = companionInt[i];
+				companionInt[i] = companionInt[j];
+				companionInt[j] = temp;
+			}
+
+			if (companionDbl != null) {
+				double tempd = companionDbl[i];
+				companionDbl[i] = companionDbl[j];
+				companionDbl[j] = tempd;
+			}
+		}
 	}
 }

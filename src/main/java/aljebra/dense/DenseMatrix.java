@@ -166,6 +166,7 @@ public class DenseMatrix implements Cloneable, Serializable {
 	// END STATIC SECTION
 	//
 	
+	
 	// Number of rows
 	protected final int rows;
 	
@@ -739,17 +740,24 @@ public class DenseMatrix implements Cloneable, Serializable {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Dimension: " + rows + " x " + cols + "\n");
-
+		sb.append("[");
 		for (int i = 0; i < rows; ++i) {
-			sb.append("[");
+			if (i == 0) {
+				sb.append("[");
+			} else {
+				sb.append(" [");
+			}
 			for (int j = 0; j < cols; ++j) {
 				sb.append((float) data[i][j]);
 				if (j < cols - 1) {
 					sb.append("\t");
 				}
 			}
-			sb.append("]\n");
+			sb.append("]");
+			if (i == rows - 1) {
+				sb.append("]");
+			}
+			sb.append("\n");
 		}
 		return sb.toString();
 	}

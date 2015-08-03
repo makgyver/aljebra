@@ -88,7 +88,37 @@ public class SparseVector implements Serializable, Cloneable {
 			ids[i] = i;
 			vals[i] = RNG.uniformDbl();
 		}
+		clean(ids, vals);
 		return new SparseVector(ids, vals);
+	}
+	
+	// Clean up the vectors: remove the entry corresponding to zero values.
+	private static void clean(int[] ids, double[] v) {
+		assert (ids.length == v.length);
+				
+		ArrayList<Integer> skip = new ArrayList<Integer>();
+		for (int i = 0; i < v.length; ++i) {
+			if (!Misc.isEqual(v[i], 0.0)) {
+				skip.add(i);
+			}
+		}
+		
+		if (skip.size() > 0) {
+			int size = ids.length - skip.size();
+			
+			int[] newi = new int[size];
+			double[] newv = new double[size];
+			
+			for (int i = 0, j = 0; j < skip.size(); ++j) {
+				for (int k = i + j; k < skip.get(j); ++k, ++i) {
+					newi[i] = ids[k];
+					newv[i] = v[k];
+				}
+			}
+			
+			ids = newi;
+			v = newv;
+		}
 	}
 	
 	//
@@ -162,35 +192,6 @@ public class SparseVector implements Serializable, Cloneable {
 		System.arraycopy(vec.ids, 0, ids, 0, size);
 		
 		this.count = vec.count;
-	}
-	
-	// Clean up the vectors: remove the entry corresponding to zero values.
-	private void clean(int[] ids, double[] v) {
-		assert (ids.length == v.length);
-				
-		ArrayList<Integer> skip = new ArrayList<Integer>();
-		for (int i = 0; i < v.length; ++i) {
-			if (!Misc.isEqual(v[i], 0.0)) {
-				skip.add(i);
-			}
-		}
-		
-		if (skip.size() > 0) {
-			int size = ids.length - skip.size();
-			
-			int[] newi = new int[size];
-			double[] newv = new double[size];
-			
-			for (int i = 0, j = 0; j < skip.size(); ++j) {
-				for (int k = i + j; k < skip.get(j); ++k, ++i) {
-					newi[i] = ids[k];
-					newv[i] = v[k];
-				}
-			}
-			
-			ids = newi;
-			v = newv;
-		}
 	}
 	
 	/**
