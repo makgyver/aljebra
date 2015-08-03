@@ -445,7 +445,8 @@ public class SparseMatrix implements Serializable, Cloneable {
 	 * @param value	 the new value for the entry
 	 */
 	public void set(int row, int col, double value) {
-
+		assert(row >= 0 && row < rows && col >= 0 && col < cols);
+		
 		int i = Arrays.binarySearch(colInd, rowPtr[row], rowPtr[row + 1], col);
 		int j = Arrays.binarySearch(rowInd, colPtr[col], colPtr[col + 1], row);
 		

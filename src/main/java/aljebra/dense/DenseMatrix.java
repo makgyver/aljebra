@@ -117,7 +117,8 @@ public class DenseMatrix implements Cloneable, Serializable {
 	 * @return the M-row by N-column dot product 
 	 */
 	public static double dot(DenseMatrix M, int mrow, DenseMatrix N, int ncol) {
-		assert M.cols == N.rows;
+		assert(M.cols == N.rows);
+		assert(mrow >= 0 && mrow < M.rows && ncol >= 0 && ncol < N.cols);
 
 		double result = 0;
 		for (int j = 0; j < M.cols; ++j) {
@@ -351,6 +352,8 @@ public class DenseMatrix implements Cloneable, Serializable {
 	 * @param vec	the new row vector
 	 */
 	public void setRow(int row, DenseVector vec) {
+		assert(row >= 0 && row < rows);
+		
 		for (int j = 0; j < cols; ++j) {
 			data[row][j] = vec.get(j);
 		}
@@ -415,6 +418,7 @@ public class DenseMatrix implements Cloneable, Serializable {
 	 * @param value	 the value to add
 	 */
 	public void add(int row, int col, double value) {
+		assert(row >= 0 && row < rows && col >= 0 && col < cols);
 		data[row][col] += value;
 	}
 	
@@ -462,6 +466,7 @@ public class DenseMatrix implements Cloneable, Serializable {
 	 * @param value	 the value to subtract
 	 */
 	public void sub(int row, int col, double value) {
+		assert(row >= 0 && row < rows && col >= 0 && col < cols);
 		data[row][col] -= value;
 	}
 	

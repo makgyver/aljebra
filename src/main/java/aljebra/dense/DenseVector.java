@@ -207,6 +207,7 @@ public class DenseVector implements Cloneable, Serializable {
 	 * @param value	 the value to add
 	 */
 	public void add(int index, double value) {
+		assert(index >= 0 && index < size);
 		data[index] += value;
 	}
 
@@ -249,6 +250,7 @@ public class DenseVector implements Cloneable, Serializable {
 	 * @param value	 the value to subtract
 	 */
 	public void sub(int index, double value) {
+		assert(index >= 0 && index < size);
 		data[index] -= value;
 	}
 	
