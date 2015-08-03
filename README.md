@@ -8,7 +8,7 @@ Aljebra
 
 This is a simple code example of how to create and use dense and sparse structures.
 
-<pre>
+```java
 public void main(String[] args) {
 
 	// Initialize a dense vector and a dense matrix
@@ -31,7 +31,7 @@ public void main(String[] args) {
 	SparseMatrix sm_t = sm.transpose();
 
 }
-</pre>
+```
 
 
 ### GPL License
