@@ -771,6 +771,19 @@ public class SparseMatrix implements Serializable, Cloneable {
 		}
 		return result;
 	}
+	
+	/**
+	 * Computes the sum of all entries.
+	 * 
+	 * @return the sum of all entries
+	 */
+	public double sum() {
+		double sum = 0;
+		for (double d : rowData) {
+			sum += d;
+		}
+		return sum;
+	}
 
 	/**
 	 * Computes the {@code n}-norm of the matrix.

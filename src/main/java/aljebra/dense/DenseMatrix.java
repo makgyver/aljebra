@@ -564,6 +564,21 @@ public class DenseMatrix implements Cloneable, Serializable {
 	}
 	
 	/**
+	 * Computes the sum of all entries.
+	 * 
+	 * @return the sum of all entries
+	 */
+	public double sum() {
+		double sum = 0;
+		for (int i = 0; i < rows; ++i) {
+			for (int j = 0; j < cols; ++j) {
+				sum += data[i][j];
+			}
+		}
+		return sum;
+	}
+	
+	/**
 	 * <p>Computes the inverse of the matrix.</p>
 	 * <strong>This implementation is adopted from PREA package.</strong>
 	 * 
