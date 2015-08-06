@@ -538,7 +538,7 @@ public class SparseMatrix implements Serializable, Cloneable {
 		assert(j >= 0 && j < cols);
 		
 		SparseVector sv = new SparseVector(rows);
-		for (int i = colPtr[j]; i < rowPtr[j + 1]; ++i) {
+		for (int i = colPtr[j]; i < colPtr[j + 1]; ++i) {
 			sv.set(rowInd[i], colData[i]);
 		}
 		return sv;
