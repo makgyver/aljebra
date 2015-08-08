@@ -16,13 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with aljebra. If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package aljebra.sparse;
+package aljebra.data.sparse;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import aljebra.dense.DenseVector;
+import aljebra.data.IMatrix;
+import aljebra.data.IVector;
+import aljebra.data.dense.DenseVector;
 import aljebra.utils.Misc;
 import aljebra.utils.RNG;
 
@@ -38,7 +39,7 @@ import aljebra.utils.RNG;
  * @author Mirko Polato
  *
  */
-public class SparseVector implements Serializable, Cloneable {
+public class SparseVector implements IVector {
 
 	private static final long serialVersionUID = 849869514972550140L;
 	
@@ -194,12 +195,7 @@ public class SparseVector implements Serializable, Cloneable {
 		this.count = vec.count;
 	}
 	
-	/**
-	 * Returns the value in position {@code index}.
-	 * 
-	 * @param index	 the entry's position
-	 * @return the value in position {@code index}
-	 */
+	@Override
 	public double get(int index) {
 		assert(index >= 0 && index < size);
 		
@@ -207,12 +203,7 @@ public class SparseVector implements Serializable, Cloneable {
 		return i >= 0 ? data[i] : 0;
 	}
 	
-	/**
-	 * Sets the entry in position {@code index} to the given {@code value}.
-	 * 
-	 * @param index	 the entry's position
-	 * @param value	 the new value (expected non-zero)
-	 */
+	@Override
 	public void set(int index, double value) {
 		assert(index >= 0 && index < size);
 		
@@ -222,14 +213,7 @@ public class SparseVector implements Serializable, Cloneable {
 		}
 	}
 	
-	/**
-	 * <p>Sets all entries to the given {@code value}.</p>
-	 * 
-	 * <strong>NOTE: using a sparse implementation with a non-sparse vector
-	 * is not as efficient as using a dense implementation. See {@link DenseVector}.</strong>
-	 * 
-	 * @param value	 the new value for the entries
-	 */
+	@Override
 	public void setAll(double value) {
 		if (!Misc.isEqual(value, 0.0)) {
 			data = new double[size];
@@ -246,11 +230,7 @@ public class SparseVector implements Serializable, Cloneable {
 		}
 	}
 	
-	/**
-	 * Returns the size of the vector.
-	 * 
-	 * @return the size of the vector
-	 */
+	@Override
 	public int size() {
 		return size;
 	}
@@ -309,11 +289,7 @@ public class SparseVector implements Serializable, Cloneable {
 		return i;
 	}
 	
-	/**
-	 * Returns the opposite sparse vector.
-	 * 
-	 * @return the opposite sparse vector
-	 */
+	@Override
 	public SparseVector opposite() {
 		double[] newData = new double[count];
 		for (int i = 0; i < count; ++i) {
@@ -322,31 +298,8 @@ public class SparseVector implements Serializable, Cloneable {
 		return new SparseVector(size, ids, newData);
 	}
 	
-	/**
-	 * <p>Addition between sparse vectors.</p>
-	 * Adds the vector {@code that}.
-	 * 
-	 * @param that	the vector to add
-	 * @return the resulting vector
-	 */
-	public SparseVector add(SparseVector that) {
-		assert(size == that.size);
-		
-		SparseVector result = new SparseVector(size);
-		for (int i = 0; i < size; ++i) {
-			result.set(i, get(i) + that.get(i));
-		}
-		return result;
-	}
-	
-	/**
-	 * <p>Addition between a sparse vector and a dense one.</p>
-	 * Adds the vector {@code that}.
-	 * 
-	 * @param that	the vector to add
-	 * @return the resulting vector
-	 */
-	public SparseVector add(DenseVector that) {
+	@Override
+	public SparseVector add(IVector that) {
 		assert(size == that.size());
 		
 		SparseVector result = new SparseVector(size);
@@ -357,15 +310,7 @@ public class SparseVector implements Serializable, Cloneable {
 	}
 	
 	
-	/**
-	 * <p>Adds the given {@code value} to all the vector's entries.</p>
-	 * 
-	 * <strong>NOTE: using a sparse implementation with a non-sparse vector
-	 * is not as efficient as using a dense implementation. See {@link DenseVector}.</strong>
-	 * 
-	 * @param value	 the value to add
-	 * @return the resulting vector
-	 */
+	@Override
 	public SparseVector add(double value) {
 		SparseVector result = new SparseVector(size);
 		for (int i = 0; i < size; ++i) {
@@ -374,13 +319,7 @@ public class SparseVector implements Serializable, Cloneable {
 		return result;
 	}
 	
-	/**
-	 * Adds the given {@code value} to the entry in position
-	 * {@code index}.
-	 * 
-	 * @param index	 the index of the entry
-	 * @param value	 the value to add
-	 */
+	@Override
 	public void add(int index, double value) {
 		assert(index >= 0 && index < size);
 		
@@ -390,31 +329,8 @@ public class SparseVector implements Serializable, Cloneable {
 		}
 	}
 	
-	/**
-	 * <p>Subtraction between sparse vectors.</p>
-	 * Subtracts the vector {@code that}.
-	 * 
-	 * @param that	the vector to subtract
-	 * @return the resulting vector
-	 */
-	public SparseVector sub(SparseVector that) {
-		assert(size == that.size);
-		
-		SparseVector result = new SparseVector(size);
-		for (int i = 0; i < size; ++i) {
-			result.set(i, get(i) - that.get(i));
-		}
-		return result;
-	}
-	
-	/**
-	 * <p>Subtraction between a sparse vector and a dense one.</p>
-	 * Subtracts the vector {@code that}.
-	 * 
-	 * @param that	the vector to subtract
-	 * @return the resulting vector
-	 */
-	public SparseVector sub(DenseVector that) {
+	@Override
+	public SparseVector sub(IVector that) {
 		assert(size == that.size());
 		
 		SparseVector result = new SparseVector(size);
@@ -424,15 +340,7 @@ public class SparseVector implements Serializable, Cloneable {
 		return result;
 	}
 	
-	/**
-	 * <p>Subtract the given {@code value} to all the vector's entries.</p>
-	 * 
-	 * <strong>NOTE: using a sparse implementation with a non-sparse vector
-	 * is not as efficient as using a dense implementation. See {@link DenseVector}.</strong>
-	 * 
-	 * @param value	 the value to subtract
-	 * @return the resulting vector
-	 */
+	@Override
 	public SparseVector sub(double value) {
 		SparseVector result = new SparseVector(size);
 		for (int i : ids) {
@@ -441,13 +349,7 @@ public class SparseVector implements Serializable, Cloneable {
 		return result;
 	}
 	
-	/**
-	 * Subtracts the given {@code value} to the entry in position
-	 * {@code index}.
-	 * 
-	 * @param index	 the index of the entry
-	 * @param value	 the value to subtract
-	 */
+	@Override
 	public void sub(int index, double value) {
 		assert(index >= 0 && index < size);
 		
@@ -457,12 +359,7 @@ public class SparseVector implements Serializable, Cloneable {
 		}
 	}
 	
-	/**
-	 * Scales the vector by the given {@code factor}.
-	 * 
-	 * @param factor	the scale factor
-	 * @return the scaled vector
-	 */
+	@Override
 	public SparseVector scale(double factor) {
 		if (factor == 0.0) {
 			return new SparseVector(size);
@@ -475,13 +372,7 @@ public class SparseVector implements Serializable, Cloneable {
 		return result;
 	}
 	
-	/**
-	 * Multiplies the given {@code value} to the entry in position
-	 * {@code index}.
-	 * 
-	 * @param index	 the index of the entry
-	 * @param value	 the multiplicative factor
-	 */
+	@Override
 	public void times(int index, double value) {
 		assert(index >= 0 && index < size);
 		
@@ -497,39 +388,23 @@ public class SparseVector implements Serializable, Cloneable {
 		}
 	}
 	
-	/**
-	 * <p>Point-wise multiplication of sparse vectors.</p>
-	 * Multiplies point-wise this vector by the vector {@code that}.
-	 * 
-	 * @param that	the vector to multiply point-wise
-	 * @return the resulting vector
-	 */
-	public SparseVector times(SparseVector that) {
-		assert(size == that.size);
+	@Override
+	public SparseVector times(IVector that) {
+		assert(size == that.size());
 		
 		SparseVector result = new SparseVector(size);
 		for (int i : ids) {
-			result.set(i, data[i] * that.data[i]);
+			result.set(i, data[i] * that.get(i));
 		}
 		return result;
 	}
 	
-	/**
-	 * <p>Product between sparse vector and matrix.</p>
-	 * Applies the product between this vector and the given {@code matrix}. </br>
-	 * The product between <tt>1 x n</tt> matrix (i.e., n-dimensional vector), 
-	 * and an <tt>n x m</tt> matrix is a <tt>1 x m</tt> matrix (i.e., row vector).
-	 * 
-	 * <p>See also {@link SparseMatrix#times(SparseVector)}.</p>
-	 * 
-	 * @param matrix	the matrix
-	 * @return the resulting vector
-	 */
-	public SparseVector times(SparseMatrix matrix) {
+	@Override
+	public SparseVector times(IMatrix matrix) {
 		assert(size == matrix.rows());
 		
 		SparseVector result = new SparseVector(matrix.cols());
-		for (int i = 0; i < matrix.cols; ++i) {
+		for (int i = 0; i < matrix.cols(); ++i) {
 			double s = 0;
 			for (int j : ids) {
 				s += data[j] * matrix.get(j, i);
@@ -542,31 +417,8 @@ public class SparseVector implements Serializable, Cloneable {
 		return result;
 	}
 	
-	/**
-	 * <p>Dot product of sparse vectors.</p>
-	 * Applies the dot product between this and {@code that} vector.
-	 * 
-	 * @param that	the vector
-	 * @return the resulting vector
-	 */
-	public double dot(SparseVector that) {
-		assert(size == that.size);
-		
-		double result = 0.0;
-		for (int i : ids) {
-			result += data[i] * that.get(i);
-		}
-		return result;
-	}
-	
-	/**
-	 * <p>Dot product of a sparse vector with a dense one.</p>
-	 * Applies the dot product between this and {@code that} vector.
-	 * 
-	 * @param that	the vector
-	 * @return the resulting vector
-	 */
-	public double dot(DenseVector that) {
+	@Override
+	public double dot(IVector that) {
 		assert(size == that.size());
 		
 		double result = 0.0;
@@ -576,35 +428,27 @@ public class SparseVector implements Serializable, Cloneable {
 		return result;
 	}
 	
-	/**
-	 * <p>Outer product of sparse vectors.</p>
-	 * Applies the outer product between this and {@code that} vector.
-	 * 
-	 * @param that	the vector
-	 * @return the resulting sparse matrix
-	 */
-	public SparseMatrix outer(SparseVector that) {
-		int[] rows = new int[size * that.size];
-		int[] cols = new int[size * that.size];
-		double[] vals = new double[size * that.size];
+	@Override
+	public SparseMatrix outer(IVector that) {
+		int[] rows = new int[size * that.size()];
+		int[] cols = new int[size * that.size()];
+		double[] vals = new double[size * that.size()];
 		
 		int k = 0;
 		for (int i : ids) {
-			for (int j : that.ids) {
-				rows[k] = i;
-				cols[k] = j;
-				vals[k] = data[i] * that.data[j];
-				++k;
+			for (int j = 0; j < that.size(); ++j) {
+				if (!Misc.isEqual(that.get(j), 0)) {
+					rows[k] = i;
+					cols[k] = j;
+					vals[k] = data[i] * that.get(j);
+					++k;
+				}
 			}
 		}
-		return new SparseMatrix(size, that.size, rows, cols, vals);
+		return new SparseMatrix(size, that.size(), rows, cols, vals);
 	}
 	
-	/**
-	 * Computes the sum of the vector's entries.
-	 * 
-	 * @return the sum of the vector's entries
-	 */
+	@Override
 	public double sum() {
 		double result = 0;
 		for (double v : data) {
@@ -613,11 +457,7 @@ public class SparseVector implements Serializable, Cloneable {
 		return result;
 	}
 	
-	/**
-	 * Computes the mean of the vector's entries.
-	 * 
-	 * @return the mean of the vector's entries
-	 */
+	@Override
 	public double mean() {
 		return sum() / size;
 	}
@@ -640,12 +480,7 @@ public class SparseVector implements Serializable, Cloneable {
 		return data;
 	}
 	
-	/**
-	 * Computes the {@code n}-norm of the vector.
-	 * 
-	 * @param n	 the index of the norm
-	 * @return the {@code n}-norm of the vector
-	 */
+	@Override
 	public double norm(int n) {
 		assert(n > 0);
 		
@@ -691,11 +526,7 @@ public class SparseVector implements Serializable, Cloneable {
 		return 7 * size + 17 * ids.hashCode() + 31 * data.hashCode();
 	}
 	
-	/**
-	 * Converts the sparse vector to an array of doubles.
-	 * 
-	 * @return the corresponding array of doubles
-	 */
+	@Override
 	public double[] toArray() {
 		double[] result = new double[size];
 		for (int i = 0; i < count; ++i) {

@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with aljebra. If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package aljebra.sparse;
+package aljebra.data.sparse;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import aljebra.dense.DenseMatrix;
-import aljebra.dense.DenseVector;
+import aljebra.data.IMatrix;
+import aljebra.data.IVector;
+import aljebra.data.dense.DenseMatrix;
 import aljebra.utils.Misc;
 import aljebra.utils.RNG;
 
@@ -39,7 +39,7 @@ import aljebra.utils.RNG;
  * @author Mirko Polato
  *
  */
-public class SparseMatrix implements Serializable, Cloneable {
+public class SparseMatrix implements IMatrix {
 
 	private static final long serialVersionUID = -3531663811502120771L;
 	
@@ -363,29 +363,17 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return rowData.length;
 	}
 	
-	/**
-	 * Returns the number of rows.
-	 * 
-	 * @return the number of rows
-	 */
+	@Override
 	public int rows() {
 		return rows;
 	}
 	
-	/**
-	 * Returns the number of columns.
-	 * 
-	 * @return the number of columns
-	 */
+	@Override
 	public int cols() {
 		return cols;
 	}
 
-	/**
-	 * Returns true if the matrix is square.
-	 * 
-	 * @return whether the matrix is square or not
-	 */
+	@Override
 	public boolean isSquare() {
 		return rows == cols;
 	}
@@ -424,26 +412,14 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return rowData.clone();
 	}
 	
-	/**
-	 * Returns the matrix entry in position ({@code row}, {@code col}).
-	 * 
-	 * @param row	the row of the entry
-	 * @param col	the column of the entry
-	 * @return	the entry in position {@code row}, {@code col}
-	 */
+	@Override
 	public double get(int row, int col) {
 		assert(row >= 0 && row < rows && col >= 0 && col < cols);
 		int index = Arrays.binarySearch(colInd, rowPtr[row], rowPtr[row + 1], col);
 		return (index >= 0) ? rowData[index] : 0.0;
 	}
 	
-	/**
-	 * Sets the entry in position ({@code row}, {@code col}) to the given {@code value}.
-	 * 
-	 * @param row	 the row of the entry
-	 * @param col	 the column of the entry
-	 * @param value	 the new value for the entry
-	 */
+	@Override
 	public void set(int row, int col, double value) {
 		assert(row >= 0 && row < rows && col >= 0 && col < cols);
 		
@@ -512,12 +488,7 @@ public class SparseMatrix implements Serializable, Cloneable {
 		}
 	}
 	
-	/**
-	 * Returns the {@code i}-th row as a sparse vector.
-	 * 
-	 * @param i	 the row's index
-	 * @return the {@code i}-th row as a sparse vector
-	 */
+	@Override
 	public SparseVector row(int i) {
 		assert(i >= 0 && i < rows);
 		
@@ -528,12 +499,7 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return sv;
 	}
 	
-	/**
-	 * Returns the {@code j}-th column as a sparse vector.
-	 * 
-	 * @param j  the column's index
-	 * @return the {@code j}-th column as a sparse vector
-	 */
+	@Override
 	public SparseVector col(int j) {
 		assert(j >= 0 && j < cols);
 		
@@ -544,12 +510,7 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return sv;
 	}
 	
-	/**
-	 * Returns the main diagonal of the matrix as a 
-	 * sparse vector.
-	 * 
-	 * @return the main diagonal of the matrix as a sparse vector
-	 */
+	@Override
 	public SparseVector diag() {
 		assert(isSquare());
 		
@@ -565,11 +526,7 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return result;
 	}
 	
-	/**
-	 * Returns the opposite sparse matrix.
-	 * 
-	 * @return the opposite sparse matrix
-	 */
+	@Override
 	public SparseMatrix opposite() {
 		SparseMatrix result = new SparseMatrix(rows, cols, true);
 		
@@ -589,14 +546,17 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return result;
 	}
 	
-	/**
-	 * <p>Addition between sparse matrices.</p>
-	 * Adds the matrix {@code that}.
-	 * 
-	 * @param that	the matrix to add
-	 * @return the resulting matrix
-	 */
-	public SparseMatrix add(SparseMatrix that) {
+	@Override
+	public SparseMatrix add(IMatrix that) {
+		if (that instanceof SparseMatrix) {
+			return add((SparseMatrix) that);
+		} else {
+			// TODO
+			return null;
+		}
+	}
+	
+	protected SparseMatrix add(SparseMatrix that) {
 		assert(rows == that.rows && cols == that.cols);
 		
 		SparseMatrix result = new SparseMatrix(rows, cols, true);
@@ -618,6 +578,39 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return result;
 	}
 	
+	@Override
+	public void add(int row, int col, double value) {
+		assert(row >= 0 && row < rows && col >= 0 && col < cols);
+		
+		if (!Misc.isEqual(value, 0.0)) {
+			set(row, col, get(row, col) + value);
+		}
+		
+	}
+
+	@Override
+	public SparseMatrix add(double value) {
+		int[] r = getCOORows();
+		int[] c = getCOOCols();
+		double[] v = getCOOValues();
+		
+		for (int i = 0; i < v.length; ++i) {
+			v[i] += value;
+		}
+		
+		return new SparseMatrix(r, c, v);
+	}
+	
+	@Override
+	public SparseMatrix sub(IMatrix that) {
+		if (that instanceof SparseMatrix) {
+			return sub((SparseMatrix) that);
+		} else {
+			// TODO
+			return null;
+		}
+	}
+	
 	/**
 	 * <p>Subtraction between sparse matrices.</p>
 	 * Subtracts the matrix {@code that}.
@@ -625,7 +618,7 @@ public class SparseMatrix implements Serializable, Cloneable {
 	 * @param that	the matrix to subtract
 	 * @return the resulting matrix
 	 */
-	public SparseMatrix sub(SparseMatrix that) {
+	protected SparseMatrix sub(SparseMatrix that) {
 		assert(rows == that.rows && cols == that.cols);
 		
 		SparseMatrix result = new SparseMatrix(rows, cols, true);
@@ -647,6 +640,38 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return result;
 	}
 	
+	@Override
+	public void sub(int row, int col, double value) {
+		assert(row >= 0 && row < rows && col >= 0 && col < cols);
+		
+		if (!Misc.isEqual(value, 0.0)) {
+			set(row, col, get(row, col) - value);
+		}
+	}
+
+	@Override
+	public SparseMatrix sub(double value) {
+		int[] r = getCOORows();
+		int[] c = getCOOCols();
+		double[] v = getCOOValues();
+		
+		for (int i = 0; i < v.length; ++i) {
+			v[i] -= value;
+		}
+		
+		return new SparseMatrix(r, c, v);
+	}
+
+	@Override
+	public SparseMatrix hadamard(IMatrix that) {
+		if (that instanceof SparseMatrix) {
+			return hadamard((SparseMatrix) that);
+		} else {
+			// TODO
+			return null;
+		}
+	}
+	
 	/**
 	 * <p>Point-wise multiplication of sparse matrices.</p>
 	 * Multiplies point-wise this matrix by the matrix {@code that}.
@@ -654,7 +679,7 @@ public class SparseMatrix implements Serializable, Cloneable {
 	 * @param that	the matrix
 	 * @return the resulting matrix
 	 */
-	public SparseMatrix hadamard(SparseMatrix that) {
+	protected SparseMatrix hadamard(SparseMatrix that) {
 		assert(rows == that.rows && cols == that.cols);
 		
 		SparseMatrix result = new SparseMatrix(rows, cols, true);
@@ -675,6 +700,16 @@ public class SparseMatrix implements Serializable, Cloneable {
 		}
 		return result;
 	}
+
+	@Override
+	public SparseMatrix dot(IMatrix that) {
+		if (that instanceof SparseMatrix) {
+			return dot((SparseMatrix) that);
+		} else {
+			// TODO
+			return null;
+		}
+	}
 	
 	/**
 	 * <p>Dot product of sparse matrices.</p>
@@ -683,7 +718,7 @@ public class SparseMatrix implements Serializable, Cloneable {
 	 * @param that	the matrix
 	 * @return the resulting matrix
 	 */
-	public SparseMatrix dot(SparseMatrix that) {
+	protected SparseMatrix dot(SparseMatrix that) {
 		assert(rows == that.cols && cols == that.rows);
 		
 		SparseMatrix result = new SparseMatrix(rows, that.cols, true);
@@ -711,19 +746,8 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return result;
 	}
 	
-	/**
-	 * <p>Product between matrix and vector.</p>
-	 * Applies the product between this vector and the given {@code matrix}. </br>
-	 * The product between an <tt>n x m</tt> matrix
-	 * and a <tt>m x 1</tt> matrix (i.e., n-dimensional vector) is an
-	 * <tt>n x 1</tt> matrix (i.e., column vector). 
-	 * 
-	 * <p>See also {@link DenseMatrix#times(DenseVector)}.</p>
-	 * 
-	 * @param vec	the vector
-	 * @return the resulting vector
-	 */
-	public SparseVector times(SparseVector vec) {
+	@Override
+	public SparseVector times(IVector vec) {
 		assert(cols == vec.size());
 		
 		SparseVector result = new SparseVector(rows);
@@ -737,11 +761,24 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return result;
 	}
 	
-	/**
-	 * Computes the transposition of the matrix.
-	 * 
-	 * @return the transposition of the matrix
-	 */
+	@Override
+	public IMatrix scale(double factor) {
+		if (!Misc.isEqual(factor, 0)) {
+			int[] r = getCOORows();
+			int[] c = getCOOCols();
+			double[] v = getCOOValues();
+			
+			for (int i = 0; i < v.length; ++i) {
+				v[i] *= factor;
+			}
+			
+			return new SparseMatrix(r, c, v);
+		} else {
+			return SparseMatrix.zero(rows, cols);
+		}
+	}
+	
+	@Override
 	public SparseMatrix transpose() {
 		SparseMatrix tr = new SparseMatrix(cols, rows, false);
 
@@ -751,12 +788,7 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return tr;
 	}
 	
-	/**
-	 * Computes the trace of the matrix: sum of all values
-	 * in the main diagonal.
-	 * 
-	 * @return the trace of the matrix
-	 */
+	@Override
 	public double trace() {
 		assert(isSquare());
 		
@@ -772,11 +804,7 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return result;
 	}
 	
-	/**
-	 * Computes the sum of all entries.
-	 * 
-	 * @return the sum of all entries
-	 */
+	@Override
 	public double sum() {
 		double sum = 0;
 		for (double d : rowData) {
@@ -785,12 +813,12 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return sum;
 	}
 
-	/**
-	 * Computes the {@code n}-norm of the matrix.
-	 * 
-	 * @param n		the norm's index
-	 * @return the {@code n}-norm of the matrix
-	 */
+	@Override
+	public double mean() {
+		return sum() / (rows * cols);
+	}
+	
+	@Override
 	public double norm(int n) {
 		assert(n > 0);
 		
@@ -840,11 +868,7 @@ public class SparseMatrix implements Serializable, Cloneable {
 		return hash;
 	}
 	
-	/**
-	 * Converts the sparse matrix to an array of doubles.
-	 * 
-	 * @return the corresponding array of doubles
-	 */
+	@Override
 	public double[][] toArray() {
 		double[][] result = new double[rows][cols];
 		for (int i = 0; i < rows; ++i) {

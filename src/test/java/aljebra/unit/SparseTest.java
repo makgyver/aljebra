@@ -23,8 +23,8 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import aljebra.sparse.SparseMatrix;
-import aljebra.sparse.SparseVector;
+import aljebra.data.sparse.SparseMatrix;
+import aljebra.data.sparse.SparseVector;
 
 public class SparseTest {
 

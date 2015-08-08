@@ -16,16 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with aljebra. If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package aljebra.dense;
+package aljebra.data.dense;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
+import aljebra.data.IMatrix;
+import aljebra.data.IVector;
+import aljebra.data.sparse.SparseMatrix;
 import aljebra.lapack.SVD;
-import aljebra.sparse.SparseMatrix;
 import aljebra.utils.Misc;
 import aljebra.utils.RNG;
 
@@ -38,7 +39,7 @@ import aljebra.utils.RNG;
  * @author Mirko Polato
  *
  */
-public class DenseMatrix implements Cloneable, Serializable {
+public class DenseMatrix implements IMatrix {
 
 	private static final long serialVersionUID = -989874464674003990L;
 	
@@ -238,25 +239,13 @@ public class DenseMatrix implements Cloneable, Serializable {
 		return new DenseMatrix(this);
 	}
 
-	/**
-	 * Returns the matrix entry in position ({@code row}, {@code col}).
-	 * 
-	 * @param row	the row of the entry
-	 * @param col	the column of the entry
-	 * @return	the entry in position {@code row}, {@code col}
-	 */
+	@Override
 	public double get(int row, int col) {
 		assert(row >= 0 && row < rows && col >= 0 && col < cols);
 		return data[row][col];
 	}
 	
-	/**
-	 * Sets the entry in position ({@code row}, {@code col}) to the given {@code value}.
-	 * 
-	 * @param row	 the row of the entry
-	 * @param col	 the column of the entry
-	 * @param value	 the new value for the entry
-	 */
+	@Override
 	public void set(int row, int col, double value) {
 		assert(row >= 0 && row < rows && col >= 0 && col < cols);
 		data[row][col] = value;
@@ -275,50 +264,28 @@ public class DenseMatrix implements Cloneable, Serializable {
 		}
 	}
 	
-	/**
-	 * Returns the number of rows of the matrix.
-	 * 
-	 * @return the number of rows of the matrix
-	 */
+	@Override
 	public int rows() {
 		return rows;
 	}
 	
-	/**
-	 * Returns the number of columns of the matrix.
-	 * 
-	 * @return the number of columns of the matrix
-	 */
+	@Override
 	public int cols() {
 		return cols;
 	}
 	
-	/**
-	 * Returns true if the matrix is square.
-	 * 
-	 * @return whether the matrix is square or not
-	 */
+	@Override
 	public boolean isSquare() {
 		return rows == cols;
 	}
 	
-	/**
-	 * Returns the {@code i}-th row as a dense vector.
-	 * 
-	 * @param i	 the row's index
-	 * @return the {@code i}-th row as a dense vector
-	 */
+	@Override
 	public DenseVector row(int i) {
 		assert(i >= 0 && i < rows);
 		return new DenseVector(data[i]);
 	}
 	
-	/**
-	 * Returns the {@code j}-th column as a dense vector.
-	 * 
-	 * @param j  the column's index
-	 * @return the {@code j}-th column as a dense vector
-	 */
+	@Override
 	public DenseVector col(int j) {
 		assert(j >= 0 && j < cols);
 		
@@ -329,12 +296,7 @@ public class DenseMatrix implements Cloneable, Serializable {
 		return result;
 	}
 	
-	/**
-	 * Returns the main diagonal of the matrix as a 
-	 * dense vector.
-	 * 
-	 * @return the main diagonal of the matrix as a dense vector
-	 */
+	@Override
 	public DenseVector diag() {
 		assert(isSquare());
 		
@@ -351,7 +313,7 @@ public class DenseMatrix implements Cloneable, Serializable {
 	 * @param row	the row's index to change
 	 * @param vec	the new row vector
 	 */
-	public void setRow(int row, DenseVector vec) {
+	public void setRow(int row, IVector vec) {
 		assert(row >= 0 && row < rows);
 		
 		for (int j = 0; j < cols; ++j) {
@@ -359,11 +321,7 @@ public class DenseMatrix implements Cloneable, Serializable {
 		}
 	}
 	
-	/**
-	 * Returns the opposite dense matrix.
-	 * 
-	 * @return the opposite dense matrix
-	 */
+	@Override
 	public DenseMatrix opposite() {
 		DenseMatrix result = new DenseMatrix(rows, cols);
 		for (int i = 0; i < rows; ++i) {
@@ -374,31 +332,20 @@ public class DenseMatrix implements Cloneable, Serializable {
 		return result;
 	}
 	
-	/**
-	 * <p>Addition between dense matrices.</p>
-	 * Adds the matrix {@code that}.
-	 * 
-	 * @param that	the matrix to add
-	 * @return the resulting matrix
-	 */
-	public DenseMatrix add(DenseMatrix that) {
-		assert(rows == that.rows && cols == that.cols);
+	@Override
+	public DenseMatrix add(IMatrix that) {
+		assert(rows == that.rows() && cols == that.cols());
 		
 		DenseMatrix result = new DenseMatrix(rows, cols);
 		for (int i = 0; i < rows; ++i) {
 			for (int j = 0; j < cols; ++j) {
-				result.data[i][j] = data[i][j] + that.data[i][j];
+				result.data[i][j] = data[i][j] + that.get(i, j);
 			}
 		}
 		return result;
 	}
 	
-	/**
-	 * Adds the given {@code value} to all the entries.
-	 * 
-	 * @param value	 the value to add
-	 * @return the resulting matrix
-	 */
+	@Override
 	public DenseMatrix add(double value) {
 		DenseMatrix result = new DenseMatrix(rows, cols);
 		for (int i = 0; i < rows; ++i) {
@@ -409,44 +356,26 @@ public class DenseMatrix implements Cloneable, Serializable {
 		return result;
 	}
 	
-	/**
-	 * Adds the given {@code value} to the entry in position
-	 * ({@code row}, {@code col}).
-	 * 
-	 * @param row	 the entry's row
-	 * @param col	 the entry's column
-	 * @param value	 the value to add
-	 */
+	@Override
 	public void add(int row, int col, double value) {
 		assert(row >= 0 && row < rows && col >= 0 && col < cols);
 		data[row][col] += value;
 	}
 	
-	/**
-	 * <p>Subtraction between dense matrices.</p>
-	 * Subtracts the matrix {@code that}.
-	 * 
-	 * @param that	the matrix to subtract
-	 * @return the resulting matrix
-	 */
-	public DenseMatrix sub(DenseMatrix that) {
-		assert(rows == that.rows && cols == that.cols);
+	@Override
+	public DenseMatrix sub(IMatrix that) {
+		assert(rows == that.rows() && cols == that.cols());
 		
 		DenseMatrix result = new DenseMatrix(rows, cols);
 		for (int i = 0; i < rows; ++i) {
 			for (int j = 0; j < cols; ++j) {
-				result.data[i][j] = data[i][j] - that.data[i][j];
+				result.data[i][j] = data[i][j] - that.get(i, j);
 			}
 		}
 		return result;
 	}
 	
-	/**
-	 * Subtracts the given {@code value} to all the entries.
-	 * 
-	 * @param value	 the value to subtract
-	 * @return the resulting matrix
-	 */
+	@Override
 	public DenseMatrix sub(double value) {
 		DenseMatrix result = new DenseMatrix(rows, cols);
 		for (int i = 0; i < rows; ++i) {
@@ -457,86 +386,63 @@ public class DenseMatrix implements Cloneable, Serializable {
 		return result;
 	}
 	
-	/**
-	 * Subtracts the given {@code value} to the entry in position
-	 * ({@code row}, {@code col}).
-	 * 
-	 * @param row	 the entry's row
-	 * @param col	 the entry's column
-	 * @param value	 the value to subtract
-	 */
+	@Override
 	public void sub(int row, int col, double value) {
 		assert(row >= 0 && row < rows && col >= 0 && col < cols);
 		data[row][col] -= value;
 	}
 	
-	/**
-	 * <p>Dot product of dense matrices.</p>
-	 * Applies the dot product between this and {@code that} matrix.
-	 * 
-	 * @param that	the matrix
-	 * @return the resulting matrix
-	 */
-	public DenseMatrix dot(DenseMatrix that) {
-		assert(cols == that.rows);
+	@Override
+	public DenseMatrix dot(IMatrix that) {
+		assert(cols == that.rows());
 		
-		DenseMatrix result = new DenseMatrix(rows, that.cols);
+		DenseMatrix result = new DenseMatrix(rows, that.cols());
 		for (int i = 0; i < rows; ++i) {
-			for (int j = 0; j < that.cols; ++j) {
+			for (int j = 0; j < that.cols(); ++j) {
 				for (int k = 0; k < cols; ++k) {
-					result.data[i][j] += data[i][k] * that.data[k][j]; 
+					result.data[i][j] += data[i][k] * that.get(k ,j); 
 				}
 			}
 		}
 		return result;
 	}
 
-	/**
-	 * <p>Point-wise multiplication of dense matrices.</p>
-	 * Multiplies point-wise this matrix by the matrix {@code that}.
-	 * 
-	 * @param that	the matrix
-	 * @return the resulting matrix
-	 */
-	public DenseMatrix hadamard(DenseMatrix that) {
-		assert(rows == that.rows && cols == that.cols);
+	@Override
+	public DenseMatrix hadamard(IMatrix that) {
+		assert(rows == that.rows() && cols == that.cols());
 
 		DenseMatrix result = new DenseMatrix(rows, cols);
 		for (int i = 0; i < rows; ++i) {
 			for (int j = 0; j < cols; ++j) {
-				result.data[i][j] = data[i][j] * that.data[i][j];
+				result.data[i][j] = data[i][j] * that.get(i, j);
 			}
 		}
 		return result;
 	}
 
-	/**
-	 * <p>Product between matrix and vector.</p>
-	 * Applies the product between this vector and the given {@code matrix}. </br>
-	 * The product between an <tt>n x m</tt> matrix
-	 * and a <tt>m x 1</tt> matrix (i.e., n-dimensional vector) is an
-	 * <tt>n x 1</tt> matrix (i.e., column vector). 
-	 * 
-	 * <p>See also {@link DenseMatrix#times(DenseVector)}.</p>
-	 * 
-	 * @param vec	the vector
-	 * @return the resulting vector
-	 */
-	public DenseVector times(DenseVector vec) {
+	@Override
+	public DenseVector times(IVector vec) {
 		assert(cols == vec.size());
 
 		DenseVector result = new DenseVector(rows);
-		for (int i = 0; i < rows; i++) {
+		for (int i = 0; i < rows; ++i) {
 			result.set(i, row(i).dot(vec));
 		}
 		return result;
 	}
 	
-	/**
-	 * Computes the transposition of the matrix.
-	 * 
-	 * @return the transposition of the matrix
-	 */
+	@Override
+	public DenseMatrix scale(double factor) {
+		DenseMatrix result = new DenseMatrix(rows, cols);
+		for (int i = 0; i < rows; ++i) {
+			for (int j = 0; j < cols; ++j) {
+				result.data[i][j] = factor * data[i][j];
+			}
+		}
+		return result;
+	}
+	
+	@Override
 	public DenseMatrix transpose() {
 		DenseMatrix result = new DenseMatrix(cols, rows);
 		for (int i = 0; i < result.rows; i++) {
@@ -547,12 +453,7 @@ public class DenseMatrix implements Cloneable, Serializable {
 		return result;
 	}
 	
-	/**
-	 * Computes the trace of the matrix: sum of all values
-	 * in the main diagonal.
-	 * 
-	 * @return the trace of the matrix
-	 */
+	@Override
 	public double trace() {
 		assert(isSquare());
 		
@@ -563,11 +464,7 @@ public class DenseMatrix implements Cloneable, Serializable {
 		return result;
 	}
 	
-	/**
-	 * Computes the sum of all entries.
-	 * 
-	 * @return the sum of all entries
-	 */
+	@Override
 	public double sum() {
 		double sum = 0;
 		for (int i = 0; i < rows; ++i) {
@@ -658,12 +555,12 @@ public class DenseMatrix implements Cloneable, Serializable {
 		return result;
 	}
 	
-	/**
-	 * Computes the {@code n}-norm of the matrix.
-	 * 
-	 * @param n		the norm's index
-	 * @return the {@code n}-norm of the matrix
-	 */
+	@Override
+	public double mean() {
+		return sum() / (rows * cols);
+	}
+	
+	@Override
 	public double norm(int n) {
 		assert(n > 0);
 		
@@ -689,11 +586,7 @@ public class DenseMatrix implements Cloneable, Serializable {
 		return svd;
 	}
 	
-	/**
-	 * Converts the matrix to a bi-dimensional vector of doubles.
-	 * 
-	 * @return the bi-dimensional vector representation of the matrix
-	 */
+	@Override
 	public double[][] toArray() {
 		double[][] array = new double[rows][cols];
 		for (int i = 0; i < rows; ++i) {

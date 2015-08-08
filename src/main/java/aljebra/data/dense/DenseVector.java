@@ -16,11 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with aljebra. If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package aljebra.dense;
+package aljebra.data.dense;
 
-import java.io.Serializable;
-
-import aljebra.sparse.SparseVector;
+import aljebra.data.IMatrix;
+import aljebra.data.IVector;
+import aljebra.data.sparse.SparseVector;
 import aljebra.utils.Misc;
 import aljebra.utils.RNG;
 
@@ -33,7 +33,7 @@ import aljebra.utils.RNG;
  * @author Mirko Polato
  *
  */
-public class DenseVector implements Cloneable, Serializable {
+public class DenseVector implements IVector {
 
 	private static final long serialVersionUID = -4068089840404586825L;
 	
@@ -126,54 +126,31 @@ public class DenseVector implements Cloneable, Serializable {
 		return new DenseVector(this);
 	}
 
-	/**
-	 * Returns the value in position {@code index}.
-	 * 
-	 * @param index	the index of the entry
-	 * @return the value in position {@code index}
-	 */
+	@Override
 	public double get(int index) {
 		assert(index >= 0 && index < size);
 		return data[index];
 	}
 	
-	/**
-	 * Sets the value in position {@code index} with the 
-	 * new {@code value}.
-	 * 
-	 * @param index	 the index of the entry
-	 * @param value	 the new value
-	 */
+	@Override
 	public void set(int index, double value) {
 		assert(index >= 0 && index < size);
 		data[index] = value;
 	}
 
-	/**
-	 * Sets the entire vector to the given {@code value}.
-	 * 
-	 * @param value	 the value
-	 */
+	@Override
 	public void setAll(double value) {
 		for (int i = 0; i < size; ++i) {
 			data[i] = value;
 		}
 	}
 	
-	/**
-	 * Returns the size of the vector.
-	 * 
-	 * @return the size of the vector
-	 */
+	@Override
 	public int size() {
 		return size;
 	}
 	
-	/**
-	 * Returns the opposite dense vector.
-	 * 
-	 * @return the opposite dense vector
-	 */
+	@Override
 	public DenseVector opposite() {
 		DenseVector result = new DenseVector(size);
 		for (int i = 0; i < size; ++i) {
@@ -182,41 +159,24 @@ public class DenseVector implements Cloneable, Serializable {
 		return result;
 	}
 	
-	/**
-	 * <p>Addition between dense vectors.</p>
-	 * Adds the vector {@code that}.
-	 * 
-	 * @param that	the vector to add
-	 * @return the resulting vector
-	 */
-	public DenseVector add(DenseVector that) {
-		assert(size == that.size);
+	@Override
+	public DenseVector add(IVector that) {
+		assert(size == that.size());
 		
 		DenseVector result = new DenseVector(size);
 		for (int i = 0; i < size; ++i) {
-			result.data[i] = data[i] + that.data[i];
+			result.data[i] = data[i] + that.get(i);
 		}
 		return result;
 	}
 	
-	/**
-	 * Adds the given {@code value} to the entry in position
-	 * {@code index}.
-	 * 
-	 * @param index	 the index of the entry
-	 * @param value	 the value to add
-	 */
+	@Override
 	public void add(int index, double value) {
 		assert(index >= 0 && index < size);
 		data[index] += value;
 	}
 
-	/**
-	 * Adds the given {@code value} to all the vector's entries.
-	 * 
-	 * @param value	 the value to add
-	 * @return the resulting vector
-	 */
+	@Override
 	public DenseVector add(double value) {
 		DenseVector result = new DenseVector(size);
 		for (int i = 0; i < size; ++i) {
@@ -225,41 +185,24 @@ public class DenseVector implements Cloneable, Serializable {
 		return result;
 	}
 	
-	/**
-	 * <p>Subtraction between dense vectors.</p>
-	 * Subtracts the vector {@code that}.
-	 * 
-	 * @param that	the vector to subtract
-	 * @return the resulting vector
-	 */
-	public DenseVector sub(DenseVector that) {
-		assert(size == that.size);
+	@Override
+	public DenseVector sub(IVector that) {
+		assert(size == that.size());
 		
 		DenseVector result = new DenseVector(size);
 		for (int i = 0; i < size; ++i) {
-			result.data[i] = data[i] - that.data[i];
+			result.data[i] = data[i] - that.get(i);
 		}
 		return result;
 	}
 	
-	/**
-	 * Subtracts the given {@code value} to the entry in position
-	 * {@code index}.
-	 * 
-	 * @param index	 the index of the entry
-	 * @param value	 the value to subtract
-	 */
+	@Override
 	public void sub(int index, double value) {
 		assert(index >= 0 && index < size);
 		data[index] -= value;
 	}
 	
-	/**
-	 * Subtract the given {@code value} to all the vector's entries.
-	 * 
-	 * @param value	 the value to subtract
-	 * @return the resulting vector
-	 */
+	@Override
 	public DenseVector sub(double value) {
 		DenseVector result = new DenseVector(size);
 		for (int i = 0; i < size; ++i) {
@@ -268,12 +211,7 @@ public class DenseVector implements Cloneable, Serializable {
 		return result;
 	}
 	
-	/**
-	 * Scales the vector by the given {@code factor}.
-	 * 
-	 * @param factor	the scale factor
-	 * @return the scaled vector
-	 */
+	@Override
 	public DenseVector scale(double factor) {
 		if (factor == 0.0) {
 			return new DenseVector(size);
@@ -286,86 +224,52 @@ public class DenseVector implements Cloneable, Serializable {
 		return scaled;
 	}
 	
-	/**
-	 * Multiplies the given {@code value} to the entry in position
-	 * {@code index}.
-	 * 
-	 * @param index	 the index of the entry
-	 * @param value	 the multiplicative factor
-	 */
+	@Override
 	public void times(int index, double value) {
 		assert(index >= 0 && index < size);
 		data[index] *= value;
 	}
 	
-	/**
-	 * <p>Point-wise multiplication of dense vectors.</p>
-	 * Multiplies point-wise this vector by the vector {@code that}.
-	 * 
-	 * @param that	the vector to multiply point-wise
-	 * @return the resulting vector
-	 */
-	public DenseVector times(DenseVector that) {
-		assert(size == that.size);
+	@Override
+	public DenseVector times(IVector that) {
+		assert(size == that.size());
 		
 		DenseVector result = new DenseVector(size);
 		for (int i = 0; i < size; ++i) {
-			result.data[i] = data[i] * that.data[i];
+			result.data[i] = data[i] * that.get(i);
 		}
 		return result;
 	}
 	
-	/**
-	 * <p>Dot product of dense vectors.</p>
-	 * Applies the dot product between this and {@code that} vector.
-	 * 
-	 * @param that	the vector
-	 * @return the resulting vector
-	 */
-	public double dot(DenseVector that) {
-		assert(size == that.size);
+	@Override
+	public double dot(IVector that) {
+		assert(size == that.size());
 		
 		double result = 0.0;
 		for (int i = 0; i < size; ++i) {
-			result += data[i] * that.data[i];
+			result += data[i] * that.get(i);
 		}
 		return result;
 	}
 	
-	/**
-	 * <p>Outer product of dense vectors.</p>
-	 * Applies the outer product between this and {@code that} vector.
-	 * 
-	 * @param that	the vector
-	 * @return the resulting dense matrix
-	 */
-	public DenseMatrix outer(DenseVector that) {
+	@Override
+	public DenseMatrix outer(IVector that) {
 		DenseMatrix result = new DenseMatrix(size, that.size());
 		
 		for (int i = 0; i < size; ++i) {
-			for (int j = 0; j < that.size; ++j) {
-				result.set(i, j, data[i] * that.data[j]);
+			for (int j = 0; j < that.size(); ++j) {
+				result.set(i, j, data[i] * that.get(j));
 			}
 		}
 		return result;
 	}
 	
-	/**
-	 * <p>Product between vector and matrix.</p>
-	 * Applies the product between this vector and the given {@code matrix}. </br>
-	 * The product between <tt>1 x n</tt> matrix (i.e., n-dimensional vector), 
-	 * and an <tt>n x m</tt> matrix is a <tt>1 x m</tt> matrix (i.e., row vector).
-	 * 
-	 * <p>See also {@link DenseMatrix#times(DenseVector)}.</p>
-	 * 
-	 * @param matrix	the matrix
-	 * @return the resulting vector
-	 */
-	public DenseVector times(DenseMatrix matrix) {
+	@Override
+	public DenseVector times(IMatrix matrix) {
 		assert(size == matrix.rows());
 		
 		DenseVector result = new DenseVector(matrix.cols());
-		for (int i = 0; i < matrix.cols; ++i) {
+		for (int i = 0; i < matrix.cols(); ++i) {
 			double s = 0;
 			for (int j = 0; j < size; ++j) {
 				s += data[j] * matrix.get(j, i);
@@ -375,11 +279,7 @@ public class DenseVector implements Cloneable, Serializable {
 		return result;
 	}
 	
-	/**
-	 * Computes the sum of the vector's entries.
-	 * 
-	 * @return the sum of the vector's entries
-	 */
+	@Override
 	public double sum() {
 		double result = 0;
 		for (int i = 0; i < size; ++i) {
@@ -388,30 +288,17 @@ public class DenseVector implements Cloneable, Serializable {
 		return result;
 	}
 	
-	/**
-	 * Computes the mean of the vector's entries.
-	 * 
-	 * @return the mean of the vector's entries
-	 */
+	@Override
 	public double mean() {
 		return sum() / size;
 	}
 	
-	/**
-	 * Converts to array of doubles.
-	 * 
-	 * @return the corresponding array
-	 */
+	@Override
 	public double[] toArray() {
 		return data.clone();
 	}
 	
-	/**
-	 * Computes the {@code n}-norm of the vector.
-	 * 
-	 * @param n	 the index of the norm
-	 * @return the {@code n}-norm of the vector
-	 */
+	@Override
 	public double norm(int n) {
 		assert(n > 0);
 		

@@ -24,8 +24,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import aljebra.dense.DenseMatrix;
-import aljebra.dense.DenseVector;
+import aljebra.data.dense.DenseMatrix;
+import aljebra.data.dense.DenseVector;
 import aljebra.lapack.SVD;
 
 public class DenseTest {

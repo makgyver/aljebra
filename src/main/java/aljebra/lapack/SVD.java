@@ -20,7 +20,7 @@ package aljebra.lapack;
 
 import java.io.Serializable;
 
-import aljebra.dense.DenseMatrix;
+import aljebra.data.dense.DenseMatrix;
 import aljebra.utils.Misc;
 
 /** 
