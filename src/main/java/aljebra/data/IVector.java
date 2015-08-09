@@ -127,6 +127,15 @@ public interface IVector extends Cloneable, Serializable {
 	public IVector times(IVector that);
 	
 	/**
+	 * <p>Point-wise division of vectors.</p>
+	 * Divides point-wise this vector by the vector {@code that}.
+	 * 
+	 * @param that	the vector to divide point-wise
+	 * @return the resulting vector
+	 */
+	public IVector div(IVector that);
+	
+	/**
 	 * <p>Dot product of vectors.</p>
 	 * Applies the dot product between this and {@code that} vector.
 	 * 
@@ -156,6 +165,13 @@ public interface IVector extends Cloneable, Serializable {
 	 * @return the resulting vector
 	 */
 	public IVector times(IMatrix matrix);
+	
+	/**
+	 * Returns the number of non-zero values in the vector.
+	 *  
+	 * @return the number of non-zero values in the vector
+	 */
+	public int nnzCount();
 	
 	/**
 	 * Computes the sum of the vector's entries.

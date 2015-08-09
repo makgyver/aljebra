@@ -235,11 +235,7 @@ public class SparseVector implements IVector {
 		return size;
 	}
 	
-	/**
-	 * Returns the number of non-zero values in the vector.
-	 *  
-	 * @return the number of non-zero values in the vector
-	 */
+	@Override
 	public int nnzCount() {
 		return count;
 	}
@@ -395,6 +391,17 @@ public class SparseVector implements IVector {
 		SparseVector result = new SparseVector(size);
 		for (int i : ids) {
 			result.set(i, data[i] * that.get(i));
+		}
+		return result;
+	}
+	
+	@Override
+	public SparseVector div(IVector that) {
+		assert(size == that.size());
+		
+		SparseVector result = new SparseVector(size);
+		for (int i : ids) {
+			result.set(i, data[i] / that.get(i));
 		}
 		return result;
 	}

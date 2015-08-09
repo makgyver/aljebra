@@ -133,6 +133,17 @@ public class DenseVector implements IVector {
 	}
 	
 	@Override
+	public int nnzCount() {
+		int count = 0;
+		for (int i = 0; i < size; ++i) {
+			if (!Misc.isEqual(data[i], 0)) {
+				++count;
+			}
+		}
+		return count;
+	}
+	
+	@Override
 	public void set(int index, double value) {
 		assert(index >= 0 && index < size);
 		data[index] = value;
@@ -237,6 +248,17 @@ public class DenseVector implements IVector {
 		DenseVector result = new DenseVector(size);
 		for (int i = 0; i < size; ++i) {
 			result.data[i] = data[i] * that.get(i);
+		}
+		return result;
+	}
+	
+	@Override
+	public DenseVector div(IVector that) {
+		assert(size == that.size());
+		
+		DenseVector result = new DenseVector(size);
+		for (int i = 0; i < size; ++i) {
+			result.data[i] = data[i] / that.get(i);
 		}
 		return result;
 	}
