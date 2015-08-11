@@ -779,6 +779,65 @@ public class SparseMatrix implements IMatrix {
 	}
 	
 	@Override
+	public SparseMatrix div(IMatrix that) {
+		if (that instanceof SparseMatrix) {
+			return div((SparseMatrix) that);
+		} else {
+			// TODO
+			return null;
+		}
+	}
+	
+	protected SparseMatrix div(SparseMatrix that) {
+		assert(rows == that.cols && cols == that.rows);
+		
+		SparseMatrix result = new SparseMatrix(rows, that.cols, true);
+		for (int r = 0; r < rows; ++r) {
+			for (int c = 0; c < cols; ++c) {
+				double res = 0;
+				
+				int j = rowPtr[r];
+				int k = that.colPtr[c];
+				while (j < rowPtr[r + 1] || k < that.colPtr[c + 1]) {
+					int cj = colInd[j];
+					int rk = that.rowInd[k];
+					if (cj < rk) {
+						++j;
+					} else if (cj == rk) {
+						res += rowData[j++] * that.colData[k++];
+					} else {
+						++k;
+					}
+				}
+				
+				result.set(r, c, res);
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public SparseMatrix pow(double power) {
+		if (!Misc.isEqual(power, 1)) {
+			if (!Misc.isEqual(power, 0)) {
+				int[] r = getCOORows();
+				int[] c = getCOOCols();
+				double[] v = getCOOValues();
+				
+				for (int i = 0; i < v.length; ++i) {
+					v[i] = Math.pow(v[i], power);
+				}
+				
+				return new SparseMatrix(r, c, v);
+			} else {
+				return SparseMatrix.one(rows, cols);
+			}
+		} else {
+			return SparseMatrix.zero(rows, cols);
+		}
+	}
+	
+	@Override
 	public SparseMatrix transpose() {
 		SparseMatrix tr = new SparseMatrix(cols, rows, false);
 

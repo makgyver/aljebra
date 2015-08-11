@@ -443,6 +443,30 @@ public class DenseMatrix implements IMatrix {
 	}
 	
 	@Override
+	public DenseMatrix div(IMatrix that) {
+		assert(rows == that.rows() && cols == that.cols());
+
+		DenseMatrix result = new DenseMatrix(rows, cols);
+		for (int i = 0; i < rows; ++i) {
+			for (int j = 0; j < cols; ++j) {
+				result.data[i][j] = data[i][j] / that.get(i, j);
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public DenseMatrix pow(double power) {
+		DenseMatrix result = new DenseMatrix(rows, cols);
+		for (int i = 0; i < rows; ++i) {
+			for (int j = 0; j < cols; ++j) {
+				result.data[i][j] = Math.pow(data[i][j], power);
+			}
+		}
+		return result;
+	}
+	
+	@Override
 	public DenseMatrix transpose() {
 		DenseMatrix result = new DenseMatrix(cols, rows);
 		for (int i = 0; i < result.rows; i++) {

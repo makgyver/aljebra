@@ -340,7 +340,7 @@ public class SparseVector implements IVector {
 	public SparseVector sub(double value) {
 		SparseVector result = new SparseVector(size);
 		for (int i : ids) {
-			result.set(i, data[i] - value);
+			result.set(i, get(i) - value);
 		}
 		return result;
 	}
@@ -363,7 +363,7 @@ public class SparseVector implements IVector {
 		
 		SparseVector result = new SparseVector(size);
 		for (int i : ids) {
-			result.set(i, data[i] * factor);
+			result.set(i, get(i) * factor);
 		}
 		return result;
 	}
@@ -390,7 +390,7 @@ public class SparseVector implements IVector {
 		
 		SparseVector result = new SparseVector(size);
 		for (int i : ids) {
-			result.set(i, data[i] * that.get(i));
+			result.set(i, get(i) * that.get(i));
 		}
 		return result;
 	}
@@ -401,7 +401,7 @@ public class SparseVector implements IVector {
 		
 		SparseVector result = new SparseVector(size);
 		for (int i : ids) {
-			result.set(i, data[i] / that.get(i));
+			result.set(i, get(i) / that.get(i));
 		}
 		return result;
 	}
@@ -414,7 +414,7 @@ public class SparseVector implements IVector {
 		for (int i = 0; i < matrix.cols(); ++i) {
 			double s = 0;
 			for (int j : ids) {
-				s += data[j] * matrix.get(j, i);
+				s += get(j) * matrix.get(j, i);
 			}
 			
 			if (s != 0) {
@@ -430,7 +430,7 @@ public class SparseVector implements IVector {
 		
 		double result = 0.0;
 		for (int i : ids) {
-			result += data[i] * that.get(i);
+			result += get(i) * that.get(i);
 		}
 		return result;
 	}
@@ -447,7 +447,7 @@ public class SparseVector implements IVector {
 				if (!Misc.isEqual(that.get(j), 0)) {
 					rows[k] = i;
 					cols[k] = j;
-					vals[k] = data[i] * that.get(j);
+					vals[k] = get(i) * that.get(j);
 					++k;
 				}
 			}
@@ -493,7 +493,7 @@ public class SparseVector implements IVector {
 		
 		double result = 0;
 		for (int i : ids) {
-			result += Math.abs(Math.pow(data[i], n));
+			result += Math.abs(Math.pow(get(i), n));
 		}
 		result = Math.pow(result, 1.0 / (double) n);
 		return result;
@@ -522,7 +522,7 @@ public class SparseVector implements IVector {
 		
 		boolean equal = true;
 		for (int i : ids) {
-			equal &= Misc.isEqual(data[i], that.get(i));
+			equal &= Misc.isEqual(get(i), that.get(i));
 		}
 		
 		return equal;
@@ -537,7 +537,7 @@ public class SparseVector implements IVector {
 	public double[] toArray() {
 		double[] result = new double[size];
 		for (int i = 0; i < count; ++i) {
-			result[ids[i]] = data[i];
+			result[ids[i]] = get(i);
 		}
 		return result;
 	}
@@ -550,7 +550,7 @@ public class SparseVector implements IVector {
 	public DenseVector toDense() {
 		DenseVector result = new DenseVector(size);
 		for (int i : ids) {
-			result.set(i, data[i]);
+			result.set(i, get(i));
 		}
 		return result;
 	}
@@ -561,7 +561,7 @@ public class SparseVector implements IVector {
 		sb.append("[");
 		for (int i = 0; i < size; i++) {
 			int j = Arrays.binarySearch(ids, i);
-			sb.append(j >= 0 ? data[j] : 0.0);
+			sb.append(j >= 0 ? get(j) : 0.0);
 			if (i < size - 1) {
 				sb.append(", ");
 			}

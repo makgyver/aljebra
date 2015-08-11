@@ -183,6 +183,24 @@ public interface IMatrix extends Cloneable, Serializable {
 	public IMatrix dot(IMatrix that);
 	
 	/**
+	 * <p>Point-wise divison of matrices.</p>
+	 * Divides point-wise this matrix by the matrix {@code that}.
+	 * 
+	 * @param that	the matrix
+	 * @return the resulting matrix
+	 */
+	public IMatrix div(IMatrix that);
+	
+	/**
+	 * <p>Point-wise power of matrices.</p>
+	 * Exponentiates point-wise this matrix by the given {@code power}.
+	 * 
+	 * @param power	 the exponent
+	 * @return the resulting matrix
+	 */
+	public IMatrix pow(double power);
+	
+	/**
 	 * Computes the transposition of the matrix.
 	 * 
 	 * @return the transposition of the matrix
