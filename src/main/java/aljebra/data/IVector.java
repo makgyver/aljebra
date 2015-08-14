@@ -49,6 +49,13 @@ public interface IVector extends Cloneable, Serializable {
 	public IVector opposite();
 	
 	/**
+	 * Apply the given function to all the entries.
+	 * 
+	 * @param fun	the function
+	 */
+	public void apply(IFunction fun);
+	
+	/**
 	 * <p>Addition between vectors.</p>
 	 * Adds the vector {@code that}.
 	 * 
@@ -201,4 +208,8 @@ public interface IVector extends Cloneable, Serializable {
 	 * @return the corresponding array
 	 */
 	public double[] toArray();
+	
+	Object clone() throws CloneNotSupportedException;
+	
+	public IVector copy();
 }

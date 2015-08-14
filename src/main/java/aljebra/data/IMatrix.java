@@ -89,6 +89,13 @@ public interface IMatrix extends Cloneable, Serializable {
 	public IMatrix opposite();
 	
 	/**
+	 * Apply the given function to all the entries.
+	 * 
+	 * @param fun	the function
+	 */
+	public void apply(IFunction fun);
+	
+	/**
 	 * <p>Addition between matrices.</p>
 	 * Adds the matrix {@code that}.
 	 * 
@@ -246,4 +253,7 @@ public interface IMatrix extends Cloneable, Serializable {
 	 */
 	public double[][] toArray();
 	
+	Object clone() throws CloneNotSupportedException;
+	
+	public IMatrix copy();
 }

@@ -21,6 +21,7 @@ package aljebra.data.sparse;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import aljebra.data.IFunction;
 import aljebra.data.IMatrix;
 import aljebra.data.IVector;
 import aljebra.data.dense.DenseMatrix;
@@ -351,6 +352,11 @@ public class SparseMatrix implements IMatrix {
 
 	@Override
 	public SparseMatrix clone() {
+		return new SparseMatrix(this);
+	}
+	
+	@Override
+	public SparseMatrix copy() {
 		return new SparseMatrix(this);
 	}
 	
@@ -789,28 +795,24 @@ public class SparseMatrix implements IMatrix {
 	}
 	
 	protected SparseMatrix div(SparseMatrix that) {
-		assert(rows == that.cols && cols == that.rows);
+		assert(rows == that.rows && cols == that.cols);
 		
-		SparseMatrix result = new SparseMatrix(rows, that.cols, true);
-		for (int r = 0; r < rows; ++r) {
-			for (int c = 0; c < cols; ++c) {
-				double res = 0;
-				
-				int j = rowPtr[r];
-				int k = that.colPtr[c];
-				while (j < rowPtr[r + 1] || k < that.colPtr[c + 1]) {
-					int cj = colInd[j];
-					int rk = that.rowInd[k];
-					if (cj < rk) {
-						++j;
-					} else if (cj == rk) {
-						res += rowData[j++] * that.colData[k++];
-					} else {
-						++k;
+		SparseMatrix result = new SparseMatrix(rows, cols, true);
+		for (int i = 0; i < rows; ++i) {
+			int j = rowPtr[i];
+			int k = that.rowPtr[i];
+			while (j < rowPtr[i + 1] || k < that.rowPtr[i + 1]) {
+				int cj = colInd[j];
+				int ck = that.colInd[k];
+				if (cj < ck) {
+					++j;
+				} else if (cj == ck) {
+					if (that.rowData[k++] != 0) {
+						result.set(i, cj, rowData[j++] / that.rowData[k++]);
 					}
+				} else {
+					++k;
 				}
-				
-				result.set(r, c, res);
 			}
 		}
 		return result;
@@ -976,5 +978,14 @@ public class SparseMatrix implements IMatrix {
 			sb.append("\n");
 		}
 		return sb.toString();
+	}
+	
+	@Override
+	public void apply(IFunction fun) {
+		for (int i = 0; i < rows; ++i) {
+			for (int j = 0; j < cols; ++j) {
+				set(i, j, fun.apply(get(i, j)));
+			}
+		}
 	}
 }

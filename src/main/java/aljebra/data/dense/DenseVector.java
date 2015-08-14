@@ -18,6 +18,7 @@
  *******************************************************************************/
 package aljebra.data.dense;
 
+import aljebra.data.IFunction;
 import aljebra.data.IMatrix;
 import aljebra.data.IVector;
 import aljebra.data.sparse.SparseVector;
@@ -123,6 +124,11 @@ public class DenseVector implements IVector {
 	
 	@Override
 	public DenseVector clone() {
+		return new DenseVector(this);
+	}
+	
+	@Override
+	public DenseVector copy() {
 		return new DenseVector(this);
 	}
 
@@ -258,7 +264,9 @@ public class DenseVector implements IVector {
 		
 		DenseVector result = new DenseVector(size);
 		for (int i = 0; i < size; ++i) {
-			result.data[i] = data[i] / that.get(i);
+			if (that.get(i) != 0) {
+				result.data[i] = data[i] / that.get(i);
+			}
 		}
 		return result;
 	}
@@ -388,5 +396,12 @@ public class DenseVector implements IVector {
 		sb.append("]");
 
 		return sb.toString();
+	}
+	
+	@Override
+	public void apply(IFunction fun) {
+		for (int i = 0; i < size; ++i) {
+			data[i] = fun.apply(data[i]);
+		}
 	}
 }

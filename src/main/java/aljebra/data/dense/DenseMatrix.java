@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
 
+import aljebra.data.IFunction;
 import aljebra.data.IMatrix;
 import aljebra.data.IVector;
 import aljebra.data.sparse.SparseMatrix;
@@ -238,6 +239,11 @@ public class DenseMatrix implements IMatrix {
 	public DenseMatrix clone() {
 		return new DenseMatrix(this);
 	}
+	
+	@Override
+	public DenseMatrix copy() {
+		return new DenseMatrix(this);
+	}
 
 	@Override
 	public double get(int row, int col) {
@@ -398,8 +404,8 @@ public class DenseMatrix implements IMatrix {
 		
 		DenseMatrix result = new DenseMatrix(rows, that.cols());
 		for (int i = 0; i < rows; ++i) {
-			for (int j = 0; j < that.cols(); ++j) {
-				for (int k = 0; k < cols; ++k) {
+			for (int k = 0; k < cols; ++k) {
+				for (int j = 0; j < that.cols(); ++j) {
 					result.data[i][j] += data[i][k] * that.get(k ,j); 
 				}
 			}
@@ -449,7 +455,9 @@ public class DenseMatrix implements IMatrix {
 		DenseMatrix result = new DenseMatrix(rows, cols);
 		for (int i = 0; i < rows; ++i) {
 			for (int j = 0; j < cols; ++j) {
-				result.data[i][j] = data[i][j] / that.get(i, j);
+				if (that.get(i, j) != 0) {
+					result.data[i][j] = data[i][j] / that.get(i, j);
+				}
 			}
 		}
 		return result;
@@ -697,5 +705,14 @@ public class DenseMatrix implements IMatrix {
 			sb.append("\n");
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public void apply(IFunction fun) {
+		for (int i = 0; i < rows; ++i) {
+			for (int j = 0; j < cols; ++j) {
+				data[i][j] = fun.apply(data[i][j]);
+			}
+		}
 	}
 }

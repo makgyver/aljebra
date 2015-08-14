@@ -21,6 +21,7 @@ package aljebra.data.sparse;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import aljebra.data.IFunction;
 import aljebra.data.IMatrix;
 import aljebra.data.IVector;
 import aljebra.data.dense.DenseVector;
@@ -401,7 +402,9 @@ public class SparseVector implements IVector {
 		
 		SparseVector result = new SparseVector(size);
 		for (int i : ids) {
-			result.set(i, get(i) / that.get(i));
+			if (that.get(i) != 0) {
+				result.set(i, get(i) / that.get(i));
+			}
 		}
 		return result;
 	}
@@ -505,6 +508,11 @@ public class SparseVector implements IVector {
 	}
 	
 	@Override
+	public SparseVector copy() {
+		return new SparseVector(this);
+	}
+	
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
@@ -569,5 +577,12 @@ public class SparseVector implements IVector {
 		sb.append("]");
 
 		return sb.toString();
+	}
+	
+	@Override
+	public void apply(IFunction fun) {
+		for (int i = 0; i < size; ++i) {
+			set(i, fun.apply(get(i)));
+		}
 	}
 }
